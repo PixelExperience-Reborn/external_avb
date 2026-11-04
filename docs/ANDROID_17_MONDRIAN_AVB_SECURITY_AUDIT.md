@@ -15,10 +15,14 @@
 - Recovery uses its own AVB key, algorithm, rollback index/location; `vbmeta_system` has a security-patch-derived rollback index and location 2. The exact recovery/partition chain, key provenance and rollback locations must be checked against the eventual **independent PE-Reborn** board configuration and device bootloader, not guessed from a Lineage-based reference tree.
 - Existing P0 `system/update_engine` and recovery audits already reject signature-verification and downgrade bypasses. External AVB may not reintroduce these through separate image/signing logic.
 
+## Cross-base reuse policy
+
+This audit **does not prohibit taking good solutions from modern LineageOS**. The PE-Reborn product is separate, but the proven mondrian/SM8450 hardware work can be adapted with scoped changes, upstream attribution, and Android17 build/runtime checks. The security issue here is **specific to public test keys, disabled verification flags and the old AVB signing helper**, not to LineageOS as a base. A safe configuration or a useful hardware fix from the LineageOS tree remains a candidate for the native PE-Reborn port.
+
 ## Acceptance gates
 
 1. Preserve official AOSP17 `external/avb` source (commit/tree pinned above). Do not add the old PE repo to opt-in `aosp17_pe_*.xml` manifests.
-2. Design **new, independently owned PE-Reborn** `device/xiaomi/mondrian` and `device/xiaomi/sm8450-common` sources. Lineage trees are read-only hardware references; do not inherit their build products, utilities, or device policies. Define explicit developer versus release AVB policy, production signing-key custody, vbmeta chain and rollback indices. Do not commit private keys; avoid plaintext password command arguments.
+2. Build **independently maintained PE-Reborn** `device/xiaomi/mondrian` and `device/xiaomi/sm8450-common` integration on AOSP17. The existing LineageOS 24.0 device/common trees are **current, valuable technical implementations of another Android base**, not obsolete code. Reuse or port suitable hardware configuration, boot/partition descriptions, board flags, HAL wiring and patches selectively, preserving relevant upstream attribution and licences. For each change, check source/API/Make/Soong dependencies, remove LineageOS-only product/namespace assumptions, and verify AOSP17 behaviour; never inherit incompatible pieces wholesale. Establish explicit developer versus release AVB policy, production signing-key custody, vbmeta chain and rollback indices. Do not commit private keys or put plaintext passphrases in process arguments.
 3. Test `avbtool` and `libavb` on an actual Android17 Linux build; validate vbmeta descriptors, key hashes, rollback protection, AVB chained partitions, recovery/fastbootd and OTA signature enforcement.
 4. Perform physical-device locked/unlocked-state checks only with a verified safe recovery plan. Never claim locked-boot support from a static source scan, and never bypass AVB to make an incomplete ROM appear bootable.
 
