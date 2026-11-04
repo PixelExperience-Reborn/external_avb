@@ -1,0 +1,20 @@
+name: P2 archived AVB signing security source audit
+
+on:
+  push:
+    branches:
+      - audit/a17-mondrian-avb-20261104
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  archived-avb-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check historical signing and AVB version blockers (no signing)
+        run: python3 tools/verify_a17_avb_legacy.py
